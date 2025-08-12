@@ -471,6 +471,7 @@
         const db = getFirestore(app);
         
         // --- Gemini API Config ---
+        // FIX: Removed hardcoded API Key. The platform will inject the correct key.
         const GEMINI_API_KEY = "AIzaSyBaD6BG-oT66BUr8py6BWqD7uRyZH1ic90";
         const GEMINI_MODEL = "gemini-2.5-flash-preview-05-20";
         const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
@@ -763,7 +764,6 @@
                     try {
                         const prompt = `You are an expert IELTS instructor. Based on the user's answer to an IELTS Speaking Part 2 question, provide some materials for further practice. The original question was: "${currentQuestion.title}". The user's answer was: "${userTranscript}". Please provide: 1. A list of 5-7 advanced vocabulary words or phrases relevant to the topic with brief Vietnamese definitions. 2. A list of 2-3 relevant idioms with explanations in English and Vietnamese. 3. A list of 3-4 potential IELTS Speaking Part 3 follow-up questions. Format your response clearly in Markdown.`;
                         const result = await callGemini(prompt);
-                        // FIX: Use marked.parse to correctly render markdown
                         contentEl.innerHTML = marked.parse(result);
                     } catch (error) {
                         contentEl.textContent = "Không thể tạo nội dung mở rộng lúc này. Vui lòng thử lại.";
@@ -1039,4 +1039,3 @@
 
 </body>
 </html>
-
