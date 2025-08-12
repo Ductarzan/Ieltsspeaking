@@ -471,15 +471,14 @@
         const db = getFirestore(app);
         
         // --- Gemini API Config ---
-        // IMPORTANT: Because you are using a Google Vertex AI key, you must provide
-        // your Google Cloud Project ID, the region for your project, and your API Key below.
-        const VERTEX_PROJECT_ID = "mmp-adjust-rawdata"; // e.g., "my-gcp-project-123"
-        const VERTEX_REGION = "us-central1"; // e.g., "us-central1"
-        const VERTEX_API_KEY = "AIzaSyBaD6BG-oT66BUr8py6BWqD7uRyZH1ic90"; // Your Vertex AI API Key
+        // FIX: Reverted to Google AI endpoint which supports API Keys directly.
+        // Please provide your Google AI API Key below. You can get one from Google AI Studio.
+        const GEMINI_API_KEY = "AIzaSyD8movWflsLtk9E6YTzLqVuc17y2vcLd0Y"; // Your Google AI API Key
 
-        const GEMINI_MODEL = "gemini-2.5-flash-preview-05-20";
-        // This is the correct endpoint format for Vertex AI
-        const GEMINI_API_URL = `https://${VERTEX_REGION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT_ID}/locations/${VERTEX_REGION}/publishers/google/models/${GEMINI_MODEL}:generateContent`;
+        const GEMINI_MODEL = "gemini-2.5-flash-lite";
+        // This is the correct endpoint for Google AI Studio API Keys
+        const getGeminiApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
 
 
         // --- State Variables ---
@@ -1057,4 +1056,5 @@
 
 </body>
 </ht
+
 
