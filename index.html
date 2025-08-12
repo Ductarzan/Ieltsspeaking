@@ -456,7 +456,7 @@
 
         // --- Firebase Initialization ---
         const firebaseConfig = {
-            apiKey: "AIzaSyCMxajyXZ5P3N2IFgma3NfwNqQo5LSK6Is",
+            apiKey: "YOUR_FIREBASE_API_KEY",
             authDomain: "test-ielts-speaking.firebaseapp.com",
             projectId: "test-ielts-speaking",
             storageBucket: "test-ielts-speaking.appspot.com",
@@ -471,10 +471,15 @@
         const db = getFirestore(app);
         
         // --- Gemini API Config ---
-        // FIX: Removed hardcoded API Key. The platform will inject the correct key.
-        const GEMINI_API_KEY = "AIzaSyBaD6BG-oT66BUr8py6BWqD7uRyZH1ic90";
+        // IMPORTANT: Because you are using a Google Vertex AI key, you must provide
+        // your Google Cloud Project ID, the region for your project, and your API Key below.
+        const VERTEX_PROJECT_ID = "mmp-adjust-rawdata"; // e.g., "my-gcp-project-123"
+        const VERTEX_REGION = "us-central1"; // e.g., "us-central1"
+        const VERTEX_API_KEY = "AIzaSyBaD6BG-oT66BUr8py6BWqD7uRyZH1ic90"; // Your Vertex AI API Key
+
         const GEMINI_MODEL = "gemini-2.5-flash-preview-05-20";
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+        // This is the correct endpoint format for Vertex AI
+        const GEMINI_API_URL = `https://${VERTEX_REGION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT_ID}/locations/${VERTEX_REGION}/publishers/google/models/${GEMINI_MODEL}:generateContent`;
 
 
         // --- State Variables ---
@@ -660,10 +665,16 @@
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
             const response = await fetchWithTimeout(GEMINI_API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': VERTEX_API_KEY
+                },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error(`API Error ${response.status}`);
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => ({error: {message: "Unknown API error"}}));
+                throw new Error(`API Error ${response.status}: ${errorBody.error?.message || 'Failed to get a valid response from the server.'}`);
+            }
             const result = await response.json();
             if (!result.candidates || !result.candidates[0].content.parts[0].text) {
                 throw new Error("Invalid response structure from API.");
@@ -674,6 +685,10 @@
         async function getIeltsScore(base64Audio) {
             showPage('loading');
             try {
+                if (VERTEX_PROJECT_ID === "YOUR_PROJECT_ID" || VERTEX_REGION === "YOUR_REGION" || VERTEX_API_KEY === "YOUR_API_KEY") {
+                    throw new Error("Please configure your Vertex AI Project ID, Region, and API Key in the script.");
+                }
+
                 const prompt = `You are an expert IELTS examiner. You will be given an audio recording of a user's response to an IELTS Speaking Part 2 question.
                 First, transcribe the user's entire response.
                 Then, analyze the transcript and the audio characteristics to provide a detailed evaluation based on the official IELTS criteria.
@@ -703,7 +718,10 @@
                 
                 const response = await fetchWithTimeout(GEMINI_API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': VERTEX_API_KEY
+                    },
                     body: JSON.stringify(payload)
                 });
 
@@ -1038,4 +1056,4 @@
     </script>
 
 </body>
-</html>
+</ht
