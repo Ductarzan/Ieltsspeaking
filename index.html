@@ -471,14 +471,9 @@
         const db = getFirestore(app);
         
         // --- Gemini API Config ---
-        // FIX: Reverted to Google AI endpoint which supports API Keys directly.
-        // Please provide your Google AI API Key below. You can get one from Google AI Studio.
-        const GEMINI_API_KEY = "AIzaSyD8movWflsLtk9E6YTzLqVuc17y2vcLd0Y"; // Your Google AI API Key
-
+        const GEMINI_API_KEY = "AIzaSyD8movWflsLtk9E6YTzLqVuc17y2vcLd0Y";
         const GEMINI_MODEL = "gemini-2.5-flash-lite";
-        // This is the correct endpoint for Google AI Studio API Keys
-        const getGeminiApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 
         // --- State Variables ---
@@ -664,16 +659,10 @@
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
             const response = await fetchWithTimeout(GEMINI_API_URL, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-Goog-Api-Key': VERTEX_API_KEY
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => ({error: {message: "Unknown API error"}}));
-                throw new Error(`API Error ${response.status}: ${errorBody.error?.message || 'Failed to get a valid response from the server.'}`);
-            }
+            if (!response.ok) throw new Error(`API Error ${response.status}`);
             const result = await response.json();
             if (!result.candidates || !result.candidates[0].content.parts[0].text) {
                 throw new Error("Invalid response structure from API.");
@@ -684,10 +673,6 @@
         async function getIeltsScore(base64Audio) {
             showPage('loading');
             try {
-                if (VERTEX_PROJECT_ID === "YOUR_PROJECT_ID" || VERTEX_REGION === "YOUR_REGION" || VERTEX_API_KEY === "YOUR_API_KEY") {
-                    throw new Error("Please configure your Vertex AI Project ID, Region, and API Key in the script.");
-                }
-
                 const prompt = `You are an expert IELTS examiner. You will be given an audio recording of a user's response to an IELTS Speaking Part 2 question.
                 First, transcribe the user's entire response.
                 Then, analyze the transcript and the audio characteristics to provide a detailed evaluation based on the official IELTS criteria.
@@ -717,10 +702,7 @@
                 
                 const response = await fetchWithTimeout(GEMINI_API_URL, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Goog-Api-Key': VERTEX_API_KEY
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
@@ -781,6 +763,7 @@
                     try {
                         const prompt = `You are an expert IELTS instructor. Based on the user's answer to an IELTS Speaking Part 2 question, provide some materials for further practice. The original question was: "${currentQuestion.title}". The user's answer was: "${userTranscript}". Please provide: 1. A list of 5-7 advanced vocabulary words or phrases relevant to the topic with brief Vietnamese definitions. 2. A list of 2-3 relevant idioms with explanations in English and Vietnamese. 3. A list of 3-4 potential IELTS Speaking Part 3 follow-up questions. Format your response clearly in Markdown.`;
                         const result = await callGemini(prompt);
+                        // FIX: Use marked.parse to correctly render markdown
                         contentEl.innerHTML = marked.parse(result);
                     } catch (error) {
                         contentEl.textContent = "Không thể tạo nội dung mở rộng lúc này. Vui lòng thử lại.";
@@ -1055,6 +1038,4 @@
     </script>
 
 </body>
-</ht
-
-
+</html>
