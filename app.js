@@ -35,7 +35,7 @@ const db = getFirestore(app);
 
 // --- Gemini API Config ---
 const GEMINI_API_KEY = "AIzaSyD8movWflsLtk9E6YTzLqVuc17y2vcLd0Y";
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const GEMINI_MODEL = "gemini-2.5-flash-preview-05-20";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 
@@ -598,3 +598,4 @@ function loadQuestion() {
 
 // --- Initial Load ---
 showPage('home');
+
