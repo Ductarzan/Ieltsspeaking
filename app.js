@@ -197,7 +197,7 @@ function startTimer() {
      }, 1000);
 }
 
-async function fetchWithTimeout(resource, options = {}, timeout = 60000) {
+async function fetchWithTimeout(resource, options = {}, timeout = 20000) { // Reduced timeout to 20 seconds
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
@@ -598,5 +598,3 @@ function loadQuestion() {
 
 // --- Initial Load ---
 showPage('home');
-
-
